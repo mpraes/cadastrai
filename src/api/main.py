@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import os
-from src.api.routes import chat, auth
+from src.api.routes import chat, auth, dashboard
 
 app = FastAPI(title="Cadastraí Web Interface")
 
@@ -22,6 +22,7 @@ templates = Jinja2Templates(directory=templates_dir)
 # Include the chat API router
 app.include_router(chat.router, prefix="/api")
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):

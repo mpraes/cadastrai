@@ -43,11 +43,10 @@ def create_access_token(data: dict):
 
 @router.post("/login", response_model=LoginResponse)
 def login(req: LoginRequest, db: Session = Depends(get_db)):
-    # Simple simulated auth: password is the same as username for demo
     user = db.query(User).filter(User.username == req.username).first()
-    if not user:
-        logger.warning("login_failed_user_not_found", username=req.username)
-        raise HTTPException(status_code=401, detail="Usuário não encontrado")
+    if not user or user.password != req.password:
+        logger.warning("login_failed_invalid_credentials", username=req.username)
+        raise HTTPException(status_code=401, detail="Usuário ou senha inválidos")
     
     # Generate token
     access_token = create_access_token(

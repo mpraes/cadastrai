@@ -25,6 +25,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
+    password = Column(String)
     role = Column(String) # 'admin' or 'user'
     departamento = Column(String)
 
@@ -42,9 +43,10 @@ def init_db():
     
     # Seed users if none exist
     if db.query(User).count() == 0:
-        admin = User(username="admin", role="admin", departamento="Todos")
-        vendedor = User(username="vendedor", role="user", departamento="Vendas")
-        db.add_all([admin, vendedor])
+        admin = User(username="admin", password="admin", role="admin", departamento="Todos")
+        vendedor = User(username="vendedor", password="vendedor", role="user", departamento="Vendas")
+        renan = User(username="renan_moraes", password="Rmoraes4!", role="admin", departamento="Todos")
+        db.add_all([admin, vendedor, renan])
         db.commit()
     
     db.close()

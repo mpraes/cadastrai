@@ -24,22 +24,32 @@ llm = get_llm()
 
 # --- NÓS DO GRAFO ---
 
-def router_node(state: AgentState) -> AgentState:
+async def router_node(state: AgentState) -> AgentState:
     history = state.get("chat_history", [])
-    # format history for the prompt if needed, or just include it
-    messages = [("system", ROUTER_PROMPT)] + history + [("user", state["input"])]
-    res = llm.invoke(messages)
+    history_text = "\n".join([f"{msg[0]}: {msg[1]}" for msg in history]) if history else "Nenhum"
+    
+    user_prompt = f"{ROUTER_PROMPT}\n\nHISTÓRICO:\n{history_text}\n\nMENSAGEM ATUAL:\n{state['input']}"
+    messages = [
+        ("system", "Você é uma IA de roteamento estruturado. Responda ESTRITAMENTE com a palavra-chave."),
+        ("user", user_prompt)
+    ]
+    
+    res = await llm.ainvoke(messages)
     route = res.content.strip().upper()
+    
+    # Clean up punctuation if the LLM adds any by mistake
+    route = ''.join(c for c in route if c.isalpha() or c == '_')
+    
     logger.info("router_decision", input=state["input"], route=route)
     return {"route": route, "chat_history": [("user", state["input"])]}
 
-def cadastro_node(state: AgentState) -> AgentState:
+async def cadastro_node(state: AgentState) -> AgentState:
     history = state.get("chat_history", [])[:-1] # exclude the current input we just added in router
     messages = [("system", CADASTRO_PROMPT)] + history + [("user", state["input"])]
-    res = llm.invoke(messages)
+    res = await llm.ainvoke(messages)
     return {"response": res.content}
 
-def execute_db_insert_node(state: AgentState) -> AgentState:
+async def execute_db_insert_node(state: AgentState) -> AgentState:
     response = state.get("response", "")
     json_match = re.search(r'```json(.*?)```', response, re.DOTALL)
     if json_match:
@@ -59,7 +69,7 @@ def execute_db_insert_node(state: AgentState) -> AgentState:
     
     return {"response": response, "chat_history": [("assistant", response)]}
 
-def text_to_sql_node(state: AgentState) -> AgentState:
+async def text_to_sql_node(state: AgentState) -> AgentState:
     user = state.get("user_context", {})
     role = user.get("role", "user")
     dept = user.get("departamento", "")
@@ -70,7 +80,7 @@ def text_to_sql_node(state: AgentState) -> AgentState:
         
     history = state.get("chat_history", [])[:-1]
     messages = [("system", system_prompt)] + history + [("user", state["input"])]
-    res = llm.invoke(messages)
+    res = await llm.ainvoke(messages)
     
     query = res.content.strip()
     if query.startswith("```sql"):
@@ -84,7 +94,7 @@ def text_to_sql_node(state: AgentState) -> AgentState:
     logger.info("sql_generated", query=clean_query, dept=dept, role=role)
     return {"sql_query": clean_query}
 
-def execute_sql_node(state: AgentState) -> AgentState:
+async def execute_sql_node(state: AgentState) -> AgentState:
     query = state.get("sql_query", "")
     try:
         results = execute_read_only_query(query)
@@ -95,7 +105,7 @@ def execute_sql_node(state: AgentState) -> AgentState:
         msg = f"❌ Erro ao executar a consulta: {str(e)}"
         return {"response": msg, "chat_history": [("assistant", msg)]}
 
-def format_response_node(state: AgentState) -> AgentState:
+async def format_response_node(state: AgentState) -> AgentState:
     if state.get("response") and state["response"].startswith("❌"):
         return state
     
@@ -106,11 +116,11 @@ def format_response_node(state: AgentState) -> AgentState:
         return {"response": msg, "chat_history": [("assistant", msg)]}
     
     prompt = f"O usuário perguntou: '{state['input']}'. Os dados encontrados no banco são:\n{json.dumps(results, indent=2, ensure_ascii=False)}\nResponda ao usuário de forma amigável e concisa com um pequeno resumo. O frontend exibirá os detalhes em uma tabela."
-    res = llm.invoke([("user", prompt)])
+    res = await llm.ainvoke([("user", prompt)])
     
     return {"response": res.content, "chat_history": [("assistant", res.content)]}
 
-def blocked_node(state: AgentState) -> AgentState:
+async def blocked_node(state: AgentState) -> AgentState:
     route = state.get("route", "FORA_ESCOPO")
     user = state.get("user_context", {})
     user_id = user.get("id")

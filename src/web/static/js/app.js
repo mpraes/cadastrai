@@ -2,7 +2,7 @@ let jwtToken = null;
 let currentUser = null;
 
 // Auth logic
-async function login(username) {
+async function login(username, password) {
     const errorDiv = document.getElementById('login-error');
     errorDiv.innerText = "Conectando...";
     
@@ -10,7 +10,7 @@ async function login(username) {
         const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password: username })
+            body: JSON.stringify({ username, password })
         });
         
         if (!res.ok) throw new Error("Falha no login");
@@ -29,9 +29,31 @@ async function login(username) {
         document.getElementById('user-avatar').innerText = currentUser.username.charAt(0).toUpperCase();
         document.getElementById('dept-badge').innerText = currentUser.departamento;
         
+        // Update greeting with user's name
+        let displayName = currentUser.username.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        document.getElementById('chat-messages').innerHTML = `
+            <div class="message system-message">
+                <div class="message-content">
+                    <p>Olá, <strong>${displayName}</strong>! Sou o <strong>CadastrAÍ</strong>, seu assistente virtual. Posso te ajudar a cadastrar e consultar clientes no sistema.</p>
+                    <p>O que você deseja fazer hoje?</p>
+                </div>
+            </div>
+        `;
+        
+        switchView('chat');
+        
     } catch (err) {
-        errorDiv.innerText = "Erro ao fazer login. Tente novamente.";
+        errorDiv.innerText = "Usuário ou senha inválidos.";
         console.error(err);
+    }
+}
+
+function handleLoginSubmit(event) {
+    event.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if (username && password) {
+        login(username, password);
     }
 }
 
@@ -51,10 +73,13 @@ function logout() {
 }
 
 function clearChatUI() {
+    let displayName = currentUser ? currentUser.username.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : "";
+    let greeting = displayName ? `Olá, <strong>${displayName}</strong>!` : `Olá!`;
+    
     document.getElementById('chat-messages').innerHTML = `
         <div class="message system-message">
             <div class="message-content">
-                <p>Olá! Sou o <strong>CadastrAÍ</strong>, seu assistente virtual. Posso te ajudar a cadastrar e consultar clientes no sistema.</p>
+                <p>${greeting} Sou o <strong>CadastrAÍ</strong>, seu assistente virtual. Posso te ajudar a cadastrar e consultar clientes no sistema.</p>
                 <p>O que você deseja fazer hoje?</p>
                 <p><small><em>(A tela foi limpa, mas o agente ainda recorda o contexto da conversa.)</em></small></p>
             </div>
@@ -280,3 +305,103 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 });
+
+// View switching logic
+function switchView(viewName) {
+    const chatContainer = document.querySelector('.chat-container');
+    const dashboardContainer = document.getElementById('dashboard-container');
+    const navChat = document.getElementById('nav-chat');
+    const navDashboard = document.getElementById('nav-dashboard');
+
+    if (viewName === 'chat') {
+        chatContainer.style.display = 'flex';
+        dashboardContainer.style.display = 'none';
+        navChat.classList.add('active');
+        navDashboard.classList.remove('active');
+    } else if (viewName === 'dashboard') {
+        chatContainer.style.display = 'none';
+        dashboardContainer.style.display = 'flex';
+        navChat.classList.remove('active');
+        navDashboard.classList.add('active');
+        fetchDashboardData();
+    }
+}
+
+// Fetch and render dashboard
+async function fetchDashboardData() {
+    try {
+        const res = await fetch('/api/dashboard/kpis', {
+            headers: { 'Authorization': `Bearer ${jwtToken}` }
+        });
+        if (!res.ok) throw new Error("Erro ao carregar dados do dashboard");
+        const data = await res.json();
+        renderDashboard(data);
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function renderDashboard(data) {
+    document.getElementById('kpi-total-clients').innerText = data.total_clients;
+    document.getElementById('kpi-current-dept').innerText = currentUser.departamento;
+
+    // Render bar chart for departments
+    const chartContainer = document.getElementById('chart-container');
+    chartContainer.innerHTML = '';
+    
+    // Find max count for relative width
+    const maxCount = Math.max(...data.clients_by_department.map(d => d.count), 1);
+    
+    data.clients_by_department.forEach(d => {
+        const wrap = document.createElement('div');
+        wrap.className = 'chart-bar-wrap';
+        
+        const label = document.createElement('div');
+        label.className = 'chart-label';
+        label.innerText = d.departamento;
+        label.title = d.departamento;
+        
+        const bg = document.createElement('div');
+        bg.className = 'chart-bar-bg';
+        
+        const fill = document.createElement('div');
+        fill.className = 'chart-bar-fill';
+        const percent = (d.count / maxCount) * 100;
+        fill.style.width = `${percent}%`;
+        
+        bg.appendChild(fill);
+        
+        const val = document.createElement('div');
+        val.className = 'chart-val';
+        val.innerText = d.count;
+        
+        wrap.appendChild(label);
+        wrap.appendChild(bg);
+        wrap.appendChild(val);
+        chartContainer.appendChild(wrap);
+    });
+
+    // Render recent clients
+    const recentList = document.getElementById('recent-clients-list');
+    recentList.innerHTML = '';
+    
+    if (data.recent_clients.length === 0) {
+        recentList.innerHTML = '<p class="text-secondary">Nenhum cliente recente encontrado.</p>';
+    } else {
+        data.recent_clients.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'recent-client-item';
+            
+            const dateStr = c.data_cadastro ? new Date(c.data_cadastro).toLocaleDateString('pt-BR') : '-';
+            
+            item.innerHTML = `
+                <div>
+                    <div class="rc-name">${c.razao_social || 'Sem Nome'}</div>
+                    <div class="rc-dept">${c.departamento}</div>
+                </div>
+                <div class="rc-date">${dateStr}</div>
+            `;
+            recentList.appendChild(item);
+        });
+    }
+}
