@@ -1,0 +1,411 @@
+/* SAP Fiori Inspired Theme with Modern Glassmorphism */
+:root {
+    /* Corporate Colors */
+    --sap-brand-blue: #0a6ed1;
+    --sap-dark-blue: #09131a; /* Sidebar & Dark accents */
+    --sap-header-bg: #1c2a38;
+    --sap-bg-color: #edf0f5;
+    --sap-surface: #ffffff;
+    
+    /* Text Colors */
+    --text-primary: #1d2d3e;
+    --text-secondary: #5a6b7c;
+    --text-light: #ffffff;
+    
+    /* UI Elements */
+    --border-color: #d9d9d9;
+    --hover-bg: rgba(10, 110, 209, 0.08);
+    --user-msg-bg: #e5f0fa;
+    --bot-msg-bg: #ffffff;
+    
+    /* Shadows & Effects */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.05);
+    
+    /* Transitions */
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--sap-bg-color);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Layout */
+.app-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background-color: var(--sap-dark-blue);
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+}
+
+.brand {
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #0a6ed1, #3bb3ff);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(10, 110, 209, 0.4);
+}
+
+.brand h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.nav-menu {
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+
+.nav-item.active {
+    background-color: var(--sap-brand-blue);
+    color: var(--text-light);
+    box-shadow: 0 2px 8px rgba(10, 110, 209, 0.4);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Header */
+.header {
+    height: 64px;
+    background-color: var(--sap-surface);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    box-shadow: var(--shadow-sm);
+    z-index: 5;
+}
+
+.header-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--sap-brand-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* Chat Container */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    gap: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-right: 8px;
+    scroll-behavior: smooth;
+}
+
+/* Scrollbar */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
+
+/* Messages */
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message-content {
+    padding: 16px 20px;
+    border-radius: 12px;
+    line-height: 1.5;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+}
+
+.message-content p {
+    margin-bottom: 8px;
+}
+
+.message-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* User Message */
+.user-message {
+    align-self: flex-end;
+}
+
+.user-message .message-content {
+    background-color: var(--user-msg-bg);
+    color: var(--text-primary);
+    border-bottom-right-radius: 4px;
+    border: 1px solid rgba(10, 110, 209, 0.2);
+}
+
+/* Bot/System Message */
+.system-message, .bot-message {
+    align-self: flex-start;
+}
+
+.system-message .message-content, .bot-message .message-content {
+    background-color: var(--sap-surface);
+    color: var(--text-primary);
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+/* Input Area */
+.input-container {
+    margin-top: auto;
+    padding-bottom: 12px;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    background: var(--sap-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow-glass);
+    transition: var(--transition);
+}
+
+.input-wrapper:focus-within {
+    border-color: var(--sap-brand-blue);
+    box-shadow: 0 0 0 3px rgba(10, 110, 209, 0.15);
+}
+
+textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    resize: none;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--text-primary);
+    max-height: 150px;
+    min-height: 24px;
+    line-height: 1.5;
+}
+
+textarea::placeholder {
+    color: var(--text-secondary);
+}
+
+.send-btn {
+    background-color: var(--sap-brand-blue);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-left: 12px;
+    flex-shrink: 0;
+}
+
+.send-btn:hover {
+    background-color: #0855a3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(10, 110, 209, 0.3);
+}
+
+.send-btn:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Loading Indicator */
+.typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 20px;
+    background-color: var(--sap-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+    box-shadow: var(--shadow-sm);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--sap-brand-blue);
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/* Modal and Login */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(9, 19, 26, 0.8);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000; opacity: 0; pointer-events: none; transition: var(--transition);
+}
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.login-card {
+    background: var(--sap-surface); border-radius: 12px; padding: 40px;
+    width: 400px; text-align: center; box-shadow: var(--shadow-glass);
+}
+.login-card h2 { margin: 16px 0 8px; color: var(--text-primary); }
+.login-card p { color: var(--text-secondary); margin-bottom: 24px; font-size: 0.95rem; }
+.login-options { display: flex; flex-direction: column; gap: 12px; }
+.logo.large { width: 48px; height: 48px; margin: 0 auto; }
+
+/* Buttons */
+.btn {
+    padding: 12px 16px; border-radius: 8px; border: none; cursor: pointer;
+    font-family: inherit; font-size: 1rem; transition: var(--transition);
+}
+.btn-primary { background: var(--sap-brand-blue); color: white; }
+.btn-primary:hover { background: #0855a3; }
+.btn-secondary { background: #e5f0fa; color: var(--sap-brand-blue); border: 1px solid var(--sap-brand-blue); }
+.btn-secondary:hover { background: #d0e5f5; }
+.btn-text { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.9rem;}
+.btn-text:hover { color: var(--text-primary); text-decoration: underline; }
+
+.badge {
+    background: #e5f0fa; color: var(--sap-brand-blue);
+    padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-left: 8px; font-weight: 500;
+}
+
+/* Smart Table */
+.smart-table-container {
+    width: 100%; overflow-x: auto; margin-top: 16px;
+    background: var(--sap-surface); border-radius: 8px; border: 1px solid var(--border-color);
+}
+.smart-table {
+    width: 100%; border-collapse: collapse; font-size: 0.9rem;
+}
+.smart-table th, .smart-table td {
+    padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color);
+}
+.smart-table th { background: #f4f6f9; color: var(--text-secondary); font-weight: 600; text-transform: capitalize;}
+.smart-table tr:hover td { background: var(--hover-bg); }
+
+/* Confirmation Card */
+.confirmation-card {
+    background: var(--sap-surface); border: 1px solid var(--sap-brand-blue);
+    border-radius: 8px; padding: 20px; margin-top: 16px; max-width: 400px;
+    box-shadow: 0 4px 12px rgba(10, 110, 209, 0.15); transition: var(--transition);
+}
+.confirmation-card h3 { color: var(--text-primary); margin-bottom: 16px; font-size: 1.05rem; }
+.data-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.data-item { font-size: 0.95rem; color: var(--text-secondary); }
+.data-item strong { color: var(--text-primary); display: inline-block; width: 120px; }
+.card-actions { display: flex; gap: 12px; }
+.card-actions .btn { flex: 1; padding: 8px; font-size: 0.9rem; }
+.error-text { color: #e53935; margin-top: 12px; font-size: 0.9rem; min-height: 20px;}
